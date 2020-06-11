@@ -71,7 +71,13 @@ function node(options) {
      * to this directory.
      */
     function saveTo_1(options) {
-        return options.saveTo
+        if(typeof options.saveTo != 'string') {
+            return options.saveTo
+        }
+        return {
+            db: db,
+            options: options.saveTo,
+        }
     }
 
     /*      understand/
@@ -236,10 +242,10 @@ function node(options) {
 
         function start_db_1(kd) {
             if(!kd.SAVETO) return
-            db.whoami(kd.SAVETO, (err, nodeid) => {
+            kd.SAVETO.db.whoami(kd.SAVETO.options, (err, nodeid) => {
                 if(err) kd.ERR(err)
                 else {
-                    db.loadFrom(kd.SAVETO, (err, shards) => {
+                    kd.SAVETO.db.loadFrom(kd.SAVETO.options, (err, shards) => {
                         if(err) kd.ERR(err)
                         else {
                             if(!kd.WHOAMI) kd.WHOAMI = nodeid

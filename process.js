@@ -393,7 +393,7 @@ function saveUpdatedLogs(kd) {
      */
     function save_shard_recs_1(shard, shi) {
         if(shi.savedUpto >= shard.records.length) return
-        db.saveTo(kd.SAVETO,
+        kd.SAVETO.db.saveTo(kd.SAVETO.options,
             shard,
             shard.records.slice(shi.savedUpto),
             (err) => {
@@ -429,7 +429,7 @@ function saveUpdatedLogs(kd) {
         if(kd.FLUSH_PERIOD < Date.now() - shi.lastFlushed) shouldFlush = true
 
         if(shouldFlush) {
-            db.flush(kd.SAVETO, shard)
+            kd.SAVETO.db.flush(kd.SAVETO.options, shard)
             shi.lastFlushed = Date.now()
         } else {
             if(shi.flushTimer) return /* do nothing */
