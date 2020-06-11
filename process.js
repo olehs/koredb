@@ -301,6 +301,7 @@ function process(kd, processor, logname, all_recs, remaining) {
     function filtered_1(rec) {
         let filter = processor.options.filter
         if(!filter) return true
+        if(typeof filter == 'function') return filter(rec)
         for(let k in filter) {
             if(filter[k] != rec[k]) return false
         }
