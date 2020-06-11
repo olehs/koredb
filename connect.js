@@ -494,4 +494,6 @@ module.exports = {
     join: join,
     listen: listen,
     syncNow: syncNow,
+    syncData: syncData,
+    xtractData: xtractData,
 }

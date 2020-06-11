@@ -77,18 +77,28 @@ function node(options) {
     /*      understand/
      * Expects the user to provide
      * the 'host:port' of the other
-     * node to connect to.
+     * node to connect to or custom connector
      */
     function connect_1(options) {
-        if(options.connect) {
-            let hp = options.connect.split(':')
-            if(hp.length == 2) {
-                return {
+        if(typeof options.connect != 'string') {
+            return options.connect
+        }
+        
+        let hp = options.connect.split(':')
+        if(hp.length == 2) {
+            return {
+                nw: nw,
+                options: {
                     host: hp[0],
                     port: hp[1],
                 }
-            } else {
-                return { host: hp[0] }
+            }
+        } else {
+            return { 
+                nw: nw,
+                options: {
+                    host: hp[0],
+                }
             }
         }
     }
@@ -98,6 +108,13 @@ function node(options) {
      * given by the user
      */
     function listen_1(options) {
+        if(!options.listen) return
+        if(typeof options.listen != 'object') {
+            return {
+                nw: nw,
+                options: options.listen,
+            }
+        }
         return options.listen
     }
 
@@ -238,7 +255,7 @@ function node(options) {
 
         function start_connect_1(kd) {
             if(!kd.CONNECT) return
-            nw.join(kd.CONNECT, kd, (err, shards) => {
+            kd.CONNECT.nw.join(kd.CONNECT.options, kd, (err, shards) => {
                 if(err) kd.ERR(err)
                 else {
                     pr.mergeShards(shards, kd.LOGS)
@@ -250,7 +267,7 @@ function node(options) {
 
         function start_listen_1(kd) {
             if(!kd.LISTEN) return
-            nw.listen(kd.LISTEN, kd, (err, shards) => {
+            kd.LISTEN.nw.listen(kd.LISTEN.options, kd, (err, shards) => {
                 if(err) kd.ERR(err)
                 else {
                     pr.mergeShards(shards, kd.LOGS)

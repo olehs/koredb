@@ -2,7 +2,6 @@
 
 const ds = require('./ds')
 const db = require('./persist')
-const nw = require('./connect')
 const ca = require('./cache')
 
 
@@ -357,7 +356,14 @@ function isEq(o1, o2) {
  * the network now (or asap)
  */
 function syncUpdatedLogs(kd) {
-    nw.syncNow(kd)
+    let listen = kd.LISTEN
+    if(listen) listen.nw.syncNow(kd)
+    
+    let connect = kd.CONNECT
+    if(connect) {
+        if(listen && listen.nw === connect.nw) return
+        connect.nw.syncNow(kd)
+    }
 }
 
 /*      outcome/
