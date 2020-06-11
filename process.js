@@ -1,5 +1,6 @@
 'use strict'
 
+const async = require('async')
 const ds = require('./ds')
 const db = require('./persist')
 const ca = require('./cache')
@@ -381,8 +382,10 @@ function saveUpdatedLogs(kd) {
         for(let key in log.shards) {
             let shard = log.shards[key]
             let shi = alwaysGetShardInfo(shard, si)
-
-            save_shard_recs_1(shard, shi)
+            if(!shi.saveQueue) {
+                shi.saveQueue = async.queue(save_shard_recs_1)
+            }
+            shi.saveQueue.push({shard, shi})
         }
     }
 
@@ -391,8 +394,8 @@ function saveUpdatedLogs(kd) {
      * save, write them to disk and
      * flush them.
      */
-    function save_shard_recs_1(shard, shi) {
-        if(shi.savedUpto >= shard.records.length) return
+    function save_shard_recs_1({shard, shi}, cb) {
+        if(shi.savedUpto >= shard.records.length) return cb()
         kd.SAVETO.db.saveTo(kd.SAVETO.options,
             shard,
             shard.records.slice(shi.savedUpto),
@@ -402,7 +405,9 @@ function saveUpdatedLogs(kd) {
                     shi.savedUpto = shard.records.length
                     flush_1(shard, shi)
                 }
-            })
+                cb()
+            }
+        )
     }
 
     /*      problem/
