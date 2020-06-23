@@ -30,6 +30,7 @@ function KD() {
         AUTHREQ: null,
         CHECKREQ: null,
         ERR: null,
+        SYNCEDFN: null,
 
         FLUSH_PERIOD: 0,
         REQ_PERIOD: 0,

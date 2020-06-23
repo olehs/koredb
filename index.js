@@ -20,6 +20,7 @@ const ca = require('./cache')
  *      errfn: callback for errors
  *      migrate: migration function
  *      whoami: must be UUID of node
+ *      synced: called when the node becomes SYNCED
  *
  * Given the settings we set the
  * options and start up the node.
@@ -38,6 +39,7 @@ function node(options) {
     koredata.REQ_PERIOD = reqperiod_1(options)
     koredata.MIGRATEFN = migratefn_1(options)
     koredata.WHOAMI = whoami_1(options)
+    koredata.SYNCEDFN = syncedfn_1(options)
 
     start_node_1(koredata)
 
@@ -49,6 +51,16 @@ function node(options) {
         uuid: db.uuid,
         cachedUpto: ca.cachedUpto,
         afterCached: ca.afterCached,
+    }
+
+    /*      outcome/
+     * Set a callback function
+     * that is called when a node
+     * becomes SYNCED
+     */
+    function syncedfn_1 (options) {
+        if(typeof options.synced == 'function') return options.synced
+        return function () {}
     }
 
     /*      outcome/
@@ -343,7 +355,8 @@ function switchToSynchedMode(kd) {
     let shards = xtract_shards_1(tmplogs)
 
     pr.mergeShards(shards, kd.LOGS)
-
+    
+    kd.SYNCEDFN()
 
     function xtract_shards_1(logs) {
         let shards = []
