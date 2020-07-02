@@ -345,16 +345,17 @@ function switchToSynchedMode(kd) {
 
     let tmplogs = kd.UNSYNCHED_LOGS
     kd.UNSYNCHED_LOGS = null
-    if(!tmplogs) return
+    
+    if(tmplogs) {
+        let mylogs = kd.LOGS
+        for(let k in tmplogs) {
+            move_log_recs_1(mylogs[k], tmplogs[k])
+        }
 
-    let mylogs = kd.LOGS
-    for(let k in tmplogs) {
-        move_log_recs_1(mylogs[k], tmplogs[k])
+        let shards = xtract_shards_1(tmplogs)
+
+        pr.mergeShards(shards, kd.LOGS)
     }
-
-    let shards = xtract_shards_1(tmplogs)
-
-    pr.mergeShards(shards, kd.LOGS)
     
     kd.SYNCEDFN()
 
